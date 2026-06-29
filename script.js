@@ -317,12 +317,82 @@ function initContactForm() {
 }
 
 // ============================================
+// DYNAMIC EXPERIENCE CALCULATION
+// ============================================
+
+function initDynamicExperience() {
+    const startDate = new Date(2021, 7, 1); // August 1, 2021 (Month is 0-indexed, so 7 is August)
+    const currentDate = new Date();
+    
+    // Calculate difference in years and months
+    let years = currentDate.getFullYear() - startDate.getFullYear();
+    let months = currentDate.getMonth() - startDate.getMonth();
+    
+    // Adjust if current day is before start day of the month
+    if (currentDate.getDate() < startDate.getDate()) {
+        months--;
+    }
+    
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+    
+    // Round months: if we're at >= 80% of the current month (e.g. June 29), count as a full month
+    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    const dayProgress = currentDate.getDate() / daysInMonth;
+    if (dayProgress >= 0.8) {
+        months++;
+        if (months >= 12) {
+            years++;
+            months = 0;
+        }
+    }
+
+    // Format strings
+    let shortFormat;
+    let longFormat;
+    
+    if (years >= 5) {
+        shortFormat = `${years}+`;
+        longFormat = `${years}+ years`;
+    } else {
+        if (months === 0) {
+            shortFormat = `${years}y`;
+            longFormat = `${years} year${years !== 1 ? 's' : ''}`;
+        } else {
+            shortFormat = `${years}y ${months}m`;
+            longFormat = `${years} years and ${months} month${months !== 1 ? 's' : ''}`;
+        }
+    }
+    
+    // Update elements
+    const statElement = document.getElementById('experience-stat-number');
+    if (statElement) {
+        statElement.textContent = shortFormat;
+    }
+    
+    const aboutElement = document.getElementById('experience-about-text');
+    if (aboutElement) {
+        aboutElement.textContent = `${longFormat} of experience`;
+    }
+    
+    const durationElement = document.getElementById('current-job-duration');
+    if (durationElement) {
+        durationElement.textContent = `Aug 2021 – Present (${years}y ${months}m)`;
+    }
+}
+
+// ============================================
 // INITIALIZE ON PAGE LOAD
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize theme
     initTheme();
+
+    // Initialize dynamic experience
+    initDynamicExperience();
 
     // Add scroll animation styles
     addScrollAnimationStyles();
